@@ -19,11 +19,11 @@ We have certain open problems that are both research and productionisation orien
 
 ## Problem statements
 The problem statements for the first edition of PS1 - Year 2025 at the AIGurukul foundation are as follows:
-1. Memory management for VidyaRANG to personalise learner's experience. See [Mem0](https://mem0.ai/) for more context.
-2. Tailoring answers based on learner's qualification and age. (Know your audience? See this for more context: [Concept explained in 5 levels](https://www.youtube.com/watch?v=opqIa5Jiwuw))
-3. LLM Finetuning for personalisation based on [big 5 persona](https://arxiv.org/html/2410.16491v1) ([KnowsLM](https://arxiv.org/abs/2504.04569))
-4. Evaluate and improve efficacy of VidyaRANG pipeline with [open source Large / Medium/ Small Language Models](https://ieeexplore.ieee.org/abstract/document/10958508) (Deployable on a deskto with ease!)
-5. Implementing CI/CD workflows and developing efficient code standards for VidyaRANG development, deployment and production environments hosted on GCP. (See [VidyaRANG's architecture](https://arxiv.org/pdf/2407.16209) for reference)
+1. **MemManage:** Memory management for VidyaRANG to personalise learner's experience. See [Mem0](https://mem0.ai/) for more context.
+2. **KnowYourAudience:** Tailoring answers based on learner's qualification and age. (Know your audience? See this for more context: [Concept explained in 5 levels](https://www.youtube.com/watch?v=opqIa5Jiwuw))
+3. **FineTune**: LLM Finetuning for personalisation based on [big 5 persona](https://arxiv.org/html/2410.16491v1) ([KnowsLM](https://arxiv.org/abs/2504.04569))
+4. **WorthYourBuck**: Evaluate and improve efficacy of VidyaRANG pipeline with [open source Large / Medium/ Small Language Models](https://ieeexplore.ieee.org/abstract/document/10958508) (Deployable on a desktop with ease!)
+5. **GenAIOps**: Implementing CI/CD workflows and developing efficient code standards for VidyaRANG development, deployment and production environments hosted on GCP. (See [VidyaRANG's architecture](https://arxiv.org/pdf/2407.16209) for reference)
 
 Looking forward to the finalised teams by the weekend (i.e 31st May, 2025), mentor pairings, and kickoff meetings. 
 
