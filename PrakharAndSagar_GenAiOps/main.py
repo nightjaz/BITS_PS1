@@ -9,6 +9,7 @@ gemini_api_key = os.getenv("GOOGLE_API_KEY")
 import google.generativeai as genai
 genai.configure(api_key=gemini_api_key)
 
+
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.llms.google_genai import GoogleGenAI
@@ -23,7 +24,7 @@ from markupsafe import Markup
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Needed for session
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
