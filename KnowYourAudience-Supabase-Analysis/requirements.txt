@@ -1,3 +1,0 @@
-supabase
-google-generativeai
-python-dotenv
