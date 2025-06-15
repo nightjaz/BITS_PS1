@@ -1,0 +1,7 @@
+llama-index==0.10.30
+google-generativeai
+deepeval
+PyMuPDF
+tiktoken
+llama-index-retrievers-bm25
+streamlit
