@@ -9,9 +9,6 @@ from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import get_response_synthesizer
 from llama_index.core.response_synthesizers import ResponseMode
 from llama_index.core.query_engine import RetrieverQueryEngine
-from ragas import evaluate
-from ragas.metrics import context_recall, faithfulness
-from datasets import Dataset
 
 # Configure page
 st.set_page_config(page_title="PDF Q&A with BM25", page_icon="", layout="wide")
