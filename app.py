@@ -1,22 +1,17 @@
 import os
 import streamlit as st
 import fitz  # PyMuPDF
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, Document
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import Document
 from llama_index.llms.gemini import Gemini
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.response_synthesizers import get_response_synthesizer
-from llama_index.core.query_engine import RetrieverQueryEngine
-
 # Set Gemini API key
 os.environ["GOOGLE_API_KEY"] = "API_KEY"
 
-# Configure LLM and embeddings
+# Configure LLM
 llm = Gemini(model="models/gemini-1.5-pro-latest")
-embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
 # PDF to text
 def extract_text_from_pdf(file):
     text = ""
