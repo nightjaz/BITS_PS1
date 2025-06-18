@@ -21,6 +21,23 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 import markdown
 from markupsafe import Markup
 
+"""
+Library Dependencies and Their Purposes:
+• Flask: Web framework for building the application's interface and handling HTTP requests
+• werkzeug: Provides utilities for secure file handling and web development
+• os: Handles file system operations and environment variables
+• dotenv: Manages environment variables and API key security
+• google.generativeai: Enables integration with Google's Gemini AI model
+• llama_index: Core components for document processing and retrieval:
+  - SimpleDirectoryReader: Reads and processes PDF documents
+  - SentenceSplitter: Breaks documents into manageable chunks
+  - GoogleGenAI: Integrates with Google's AI models
+  - BM25Retriever: Implements BM25 algorithm for document retrieval
+  - ResponseSynthesizer: Generates coherent responses from retrieved information
+• markdown: Converts markdown text to HTML for better response formatting
+• markupsafe: Ensures safe HTML rendering in templates
+"""
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Needed for session
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -370,10 +387,39 @@ llm = GoogleGenAI(
 )
 
 def markdown_to_html(md_text):
-    # Convert markdown to HTML and mark as safe for Jinja
+    """
+    Converts markdown text to HTML with proper safety measures.
+    
+    Args:
+        md_text (str): The markdown text to be converted
+        
+    Returns:
+        Markup: A safe HTML string that can be rendered in templates
+        
+    How it works:
+    - Uses the markdown library to convert markdown syntax to HTML
+    - Enables 'fenced_code' and 'tables' extensions for better formatting
+    - Wraps the output in Markup to mark it as safe for Jinja templates
+    """
     return Markup(markdown.markdown(md_text, extensions=['fenced_code', 'tables']))
 
 def process_pdf(pdf_path):
+    """
+    Processes a PDF file and creates a query engine for document-based question answering.
+    
+    Args:
+        pdf_path (str): Path to the PDF file to be processed
+        
+    Returns:
+        RetrieverQueryEngine: A configured query engine ready to answer questions
+        
+    How it works:
+    1. Uses SimpleDirectoryReader to load the PDF document
+    2. Splits the document into smaller chunks using SentenceSplitter
+    3. Creates a BM25Retriever for efficient document retrieval
+    4. Configures a response synthesizer with the Gemini model
+    5. Combines retriever and synthesizer into a query engine
+    """
     reader = SimpleDirectoryReader(input_files=[pdf_path])
     documents = reader.load_data()
     text_parser = SentenceSplitter(chunk_size=750, chunk_overlap=50)
@@ -389,6 +435,37 @@ def process_pdf(pdf_path):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_and_query_pdf():
+    """
+    Main route handler for the PDF Q&A application.
+    
+    GET Method:
+    - Retrieves the current session state
+    - Displays the upload form if no file is uploaded
+    - Shows the question form and chat history if a file exists
+    
+    POST Method:
+    Handles two types of POST requests:
+    1. PDF Upload:
+       - Validates the uploaded file is a PDF
+       - Securely saves the file
+       - Resets chat history
+       - Returns the question form interface
+    
+    2. Question Query:
+       - Processes the user's question about the PDF
+       - Uses the query engine to find relevant information
+       - Formats the response in markdown
+       - Updates chat history
+       - Returns the answer with updated interface
+    
+    Session Management:
+    - Maintains chat history across requests
+    - Stores the current filename
+    - Handles error cases gracefully
+    
+    Returns:
+        str: Rendered HTML template with appropriate content
+    """
     filename = None
     answer = None
     chat_history = session.get('chat_history', [])
