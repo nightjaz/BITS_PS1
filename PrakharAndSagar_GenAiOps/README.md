@@ -7,7 +7,10 @@ A powerful web application that allows users to upload PDF documents and ask que
 ![PDF Q&A Assistant Interface](image.png)
 
 ### Watch the Demo Video
-[Click here to watch the demo video](demo.mp4)
+<video width="100%" controls>
+  <source src="demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 *The demo shows the complete workflow of uploading a PDF and asking questions about its content*
 
