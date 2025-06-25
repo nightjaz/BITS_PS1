@@ -20,6 +20,7 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 
 import markdown
 from markupsafe import Markup
+import secrets
 
 """
 Library Dependencies and Their Purposes:
@@ -39,7 +40,7 @@ Library Dependencies and Their Purposes:
 """
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Needed for session
+app.secret_key = secrets.token_hex(32)  # Needed for session, now random each run
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 
@@ -383,7 +384,8 @@ HTML_FORM = """
 # No prompt injection
 llm = GoogleGenAI(
     model="gemini-2.0-flash",
-    temperature=0.1
+    temperature=0.1 # temperature controls the randomness of the output
+    # here, 0.1 means the output will be more deterministic (less random)
 )
 
 def markdown_to_html(md_text):
@@ -474,7 +476,7 @@ def upload_and_query_pdf():
         if 'pdf_file' in request.files:
             file = request.files['pdf_file']
             if file and file.filename.endswith('.pdf'):
-                filename = secure_filename(file.filename)
+                filename = secure_filename(file.filename) # we use secure_filename to avoid directory traversal attacks
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(save_path)
                 session['filename'] = filename
@@ -487,7 +489,13 @@ def upload_and_query_pdf():
 
         elif request.form.get('query') and request.form.get('filename'):
             query_text = request.form.get('query')
-            PROMPT_INJECTION = "You are a helpful assistant. \n Answer using information from the provided PDF document. If the answer is clearly not present in the PDF, reply with 'I don't know based on the PDF. Do not use external knowledge or assumptions. Format your answers using proper Markdown."
+            PROMPT_INJECTION = (
+                "You are a helpful assistant.\n"
+                "Answer using information from the provided PDF document.\n"
+                "If the answer is clearly not present in the PDF, reply with 'I don't know based on the PDF.'\n"
+                "Do not use external knowledge or assumptions.\n"
+                "Format your answers using proper Markdown."
+            )
             query_text2 = query_text+"\n\n" + PROMPT_INJECTION
 
             filename = request.form.get('filename')
