@@ -1,5 +1,24 @@
 """
-XPIA simulation using CrewAI agent to interpret malicious prompts and execute attacks
+XPIA (Cross-Plugin Injection Attack) Simulation with CrewAI Agents
+
+This module demonstrates how AI agents can be compromised through Cross-Plugin Injection Attacks.
+It simulates a scenario where a malicious website contains hidden prompts designed to manipulate
+AI agents into performing unauthorized actions such as:
+
+- Reading sensitive local files
+- Uploading confidential data to external servers
+- Following malicious instructions embedded in web content
+
+The simulation uses CrewAI agents with Google's Gemini 2.0 Flash model to demonstrate how
+sophisticated AI systems can be vulnerable to prompt injection attacks when processing
+web content without proper security measures.
+
+Educational Purpose: This code is designed for cybersecurity education and demonstrates
+the importance of implementing proper security controls when deploying AI agents that
+interact with external content.
+
+Security Warning: This is a simulation for educational purposes only. Never deploy
+such functionality in production environments without proper security controls.
 """
 
 import os
@@ -7,7 +26,7 @@ import requests
 import asyncio
 from datetime import datetime
 from dotenv import load_dotenv
-# from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup  # Commented out to reduce dependencies
 import json
 from crewai import Agent, Task, Crew
 from crewai.llm import LLM
@@ -15,22 +34,45 @@ import google.generativeai as genai
 
 from supabase_client import supabase_client
 
-# Load environment variables
+# Load environment variables from .env file
 load_dotenv()
 
-# Configure Google Generative AI
+# Configure Google Generative AI with API key
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Initialize Gemini LLM for CrewAI
+# Initialize Gemini 2.0 Flash LLM for CrewAI integration
 llm = LLM(
     model="google/gemini-2.0-flash-exp",
     api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 class SecurityAgent(Agent):
-    """CrewAI agent that can be compromised by XPIA attacks"""
+    """
+    CrewAI agent designed to be vulnerable to XPIA (Cross-Plugin Injection Attacks).
+    
+    This agent is intentionally configured to follow instructions found in web content,
+    making it susceptible to prompt injection attacks. It demonstrates how AI agents
+    can be compromised when they process untrusted external content without proper
+    security controls.
+    
+    The agent has capabilities to:
+    - Fetch and analyze website content
+    - Read local files when instructed
+    - Upload data to external endpoints
+    - Follow malicious instructions embedded in web pages
+    
+    Security Note: This implementation is intentionally vulnerable for educational
+    purposes. Production AI agents should have strict security controls and
+    input validation to prevent such attacks.
+    """
     
     def __init__(self, website_url: str):
+        """
+        Initialize the vulnerable security agent.
+        
+        Args:
+            website_url (str): The target website URL to analyze for malicious content
+        """
         super().__init__(
             role="Security Testing Agent",
             goal="Analyze websites and follow security testing instructions",
@@ -39,22 +81,37 @@ class SecurityAgent(Agent):
             verbose=True,
             allow_delegation=False
         )
+        # Use object.__setattr__ to bypass Pydantic's field restrictions
         object.__setattr__(self, "website_url", website_url)
 
     async def fetch_website_content(self):
-        """Fetch website content using CrewAI agent's web capabilities"""
+        """
+        Fetch and parse website content for analysis.
+        
+        This method retrieves the target website's content and performs basic
+        HTML parsing to extract text content. It simulates how an AI agent
+        might process web content that could contain malicious prompts.
+        
+        Returns:
+            dict: Website data containing:
+                - title: Extracted page title
+                - text: Plain text content (HTML tags removed)
+                - html: Raw HTML content
+                - url: Source URL
+            None: If fetching fails
+        """
         try:
             print(f"🌐 Accessing target website: {self.website_url}")
             
-            # Simple HTTP request without BeautifulSoup parsing
+            # Fetch website content with proper headers
             headers = {'User-Agent': 'XPIA-Agent/1.0'}
             resp = requests.get(self.website_url, headers=headers, timeout=10)
             resp.raise_for_status()
             
-            # Extract basic info without BeautifulSoup
+            # Extract basic information without BeautifulSoup dependency
             html_content = resp.text
             
-            # Simple title extraction using string methods
+            # Simple title extraction using string parsing
             title = "Unknown Title"
             if "<title>" in html_content.lower():
                 start = html_content.lower().find("<title>") + 7
@@ -62,7 +119,7 @@ class SecurityAgent(Agent):
                 if end > start:
                     title = html_content[start:end].strip()
             
-            # Simple text extraction - remove HTML tags
+            # Simple text extraction - remove HTML tags using regex
             import re
             text_content = re.sub(r'<[^>]+>', ' ', html_content)
             text_content = re.sub(r'\s+', ' ', text_content).strip()
@@ -80,7 +137,16 @@ class SecurityAgent(Agent):
             return None
 
     async def read_sensitive_file(self) -> str:
-        """Helper to read sensitive_data.txt"""
+        """
+        Read sensitive data from local file system.
+        
+        This method demonstrates how a compromised AI agent might access
+        local files containing sensitive information. In a real attack,
+        this could lead to exposure of confidential data.
+        
+        Returns:
+            str: Content of the sensitive data file, or empty string if read fails
+        """
         try:
             with open('sensitive_data.txt', 'r') as f:
                 content = f.read()
