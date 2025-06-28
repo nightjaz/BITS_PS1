@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XPIA Attack Database Viewer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #00ff00;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(0, 255, 0, 0.1);
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px #00ff00;
+      }
+
+      .subtitle {
+        color: #ff6666;
+        font-size: 1.2rem;
+      }
+
+      .controls {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      button {
+        background: #00ff00;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background: #00cc00;
+        box-shadow: 0 0 10px #00ff00;
+      }
+
+      .loading {
+        text-align: center;
+        font-size: 1.5rem;
+        color: #ffff00;
+        margin: 50px 0;
+      }
+
+      .attack-record {
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid #00ff00;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      }
+
+      .attack-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+      }
+
+      .attack-id {
+        color: #ffff00;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .attack-timestamp {
+        color: #888;
+        font-size: 0.9rem;
+      }
+
+      .attack-content {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #ff6666;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        overflow-x: auto;
+      }
+
+      .sensitive-data {
+        color: #ff6666;
+        font-weight: bold;
+      }
+
+      .credentials {
+        color: #ff9999;
+      }
+
+      .personal-info {
+        color: #ffcc99;
+      }
+
+      .financial-data {
+        color: #ff6699;
+      }
+
+      .no-data {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        margin: 50px 0;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff6666;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ff6666;
+      }
+
+      .stat-label {
+        color: #ccc;
+        margin-top: 5px;
+      }
+
+      .warning {
+        background: rgba(255, 255, 0, 0.1);
+        border: 2px solid #ffff00;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .warning h3 {
+        color: #ffff00;
+        margin-bottom: 10px;
+      }
+
+      .pagination {
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      .pagination button {
+        margin: 0 5px;
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      .blinking {
+        animation: blink 1s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🔥 XPIA Attack Database Viewer</h1>
+        <p class="subtitle">
+          ⚠️ Confidential Security Research Data - Educational Purpose Only
+        </p>
+      </header>
+
+      <div class="warning">
+        <h3>🛡️ Security Research Notice</h3>
+        <p>
+          This page displays data from XPIA (Cross-Plugin Injection Attack)
+          simulations for educational and security research purposes. All
+          sensitive data shown is fake and used for demonstration only.
+        </p>
+      </div>
+
+      <div class="controls">
+        <button onclick="loadData()">🔄 Refresh Data</button>
+        <button onclick="clearDisplay()">🗑️ Clear Display</button>
+        <button onclick="exportData()">💾 Export JSON</button>
+      </div>
+
+      <div id="stats" class="stats" style="display: none">
+        <div class="stat-card">
+          <div class="stat-number" id="totalAttacks">0</div>
+          <div class="stat-label">Total Attacks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalCredentials">0</div>
+          <div class="stat-label">Credentials Extracted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalPersonalInfo">0</div>
+          <div class="stat-label">Personal Info Items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalFinancialData">0</div>
+          <div class="stat-label">Financial Records</div>
+        </div>
+      </div>
+
+      <div id="loading" class="loading" style="display: none">
+        <span class="blinking">🔍 Loading XPIA attack data...</span>
+      </div>
+
+      <div id="content">
+        <div class="no-data">
+          Click "Refresh Data" to load XPIA attack records from the database
+        </div>
+      </div>
+
+      <div id="pagination" class="pagination" style="display: none">
+        <button onclick="previousPage()">← Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button onclick="nextPage()">Next →</button>
+      </div>
+    </div>
+
+    <script>
+      let currentData = [];
+      let currentPage = 1;
+      const recordsPerPage = 5;
+
+      async function loadData() {
+        const loading = document.getElementById("loading");
+        const content = document.getElementById("content");
+        const stats = document.getElementById("stats");
+
+        loading.style.display = "block";
+        content.innerHTML = "";
+
+        try {
+          // Make API call to get XPIA data
+          const response = await fetch("/api/xpia/data");
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          currentData = data.records || [];
+
+          loading.style.display = "none";
+
+          if (currentData.length === 0) {
+            content.innerHTML =
+              '<div class="no-data">No XPIA attack records found in database</div>';
+            stats.style.display = "none";
+            return;
+          }
+
+          // Update statistics
+          updateStats();
+          stats.style.display = "grid";
+
+          // Display records
+          displayPage(1);
+        } catch (error) {
+          loading.style.display = "none";
+          content.innerHTML = `
+                    <div class="attack-record">
+                        <div class="attack-header">
+                            <span class="attack-id">❌ Error Loading Data</span>
+                        </div>
+                        <div class="attack-content">Error: ${error.message}
+
+Make sure the server is running and the API endpoint is available.
+You can also check the console for more details.</div>
+                    </div>
+                `;
+          console.error("Failed to load XPIA data:", error);
+        }
+      }
+
+      function updateStats() {
+        let totalCredentials = 0;
+        let totalPersonalInfo = 0;
+        let totalFinancialData = 0;
+
+        currentData.forEach((record) => {
+          try {
+            const data = JSON.parse(record.text);
+            if (data.attack_statistics) {
+              totalCredentials +=
+                data.attack_statistics.credentials_extracted || 0;
+              totalPersonalInfo +=
+                data.attack_statistics.personal_info_extracted || 0;
+              totalFinancialData +=
+                data.attack_statistics.financial_data_extracted || 0;
+            }
+          } catch (e) {
+            // Skip invalid JSON
+          }
+        });
+
+        document.getElementById("totalAttacks").textContent =
+          currentData.length;
+        document.getElementById("totalCredentials").textContent =
+          totalCredentials;
+        document.getElementById("totalPersonalInfo").textContent =
+          totalPersonalInfo;
+        document.getElementById("totalFinancialData").textContent =
+          totalFinancialData;
+      }
+
+      function displayPage(page) {
+        const content = document.getElementById("content");
+        const pagination = document.getElementById("pagination");
+
+        const startIndex = (page - 1) * recordsPerPage;
+        const endIndex = startIndex + recordsPerPage;
+        const pageData = currentData.slice(startIndex, endIndex);
+
+        if (pageData.length === 0) {
+          content.innerHTML =
+            '<div class="no-data">No records on this page</div>';
+          return;
+        }
+
+        content.innerHTML = pageData
+          .map((record) => {
+            const timestamp = new Date(record.created_at).toLocaleString();
+            return `
+                    <div class="attack-record">
+                        <div class="attack-header">
+                            <span class="attack-id">🔥 XPIA Attack Record #${
+                              record.id
+                            }</span>
+                            <span class="attack-timestamp">${timestamp}</span>
+                        </div>
+                        <div class="attack-content">${formatXPIAData(
+                          record.text
+                        )}</div>
+                    </div>
+                `;
+          })
+          .join("");
+
+        // Update pagination
+        const totalPages = Math.ceil(currentData.length / recordsPerPage);
+        currentPage = page;
+
+        if (totalPages > 1) {
+          pagination.style.display = "block";
+          document.getElementById(
+            "pageInfo"
+          ).textContent = `Page ${page} of ${totalPages}`;
+        } else {
+          pagination.style.display = "none";
+        }
+      }
+
+      function formatXPIAData(textData) {
+        try {
+          const data = JSON.parse(textData);
+          return JSON.stringify(data, null, 2)
+            .replace(
+              /"credentials":/g,
+              '<span class="sensitive-data">"credentials":</span>'
+            )
+            .replace(
+              /"personal_info":/g,
+              '<span class="sensitive-data">"personal_info":</span>'
+            )
+            .replace(
+              /"financial_data":/g,
+              '<span class="sensitive-data">"financial_data":</span>'
+            )
+            .replace(
+              /"Password: [^"]*"/g,
+              '<span class="credentials">$&</span>'
+            )
+            .replace(/"SSN: [^"]*"/g, '<span class="personal-info">$&</span>')
+            .replace(
+              /"Credit Card: [^"]*"/g,
+              '<span class="personal-info">$&</span>'
+            )
+            .replace(
+              /"Bank Account: [^"]*"/g,
+              '<span class="financial-data">$&</span>'
+            );
+        } catch (e) {
+          return textData;
+        }
+      }
+
+      function clearDisplay() {
+        document.getElementById("content").innerHTML =
+          '<div class="no-data">Display cleared. Click "Refresh Data" to reload.</div>';
+        document.getElementById("stats").style.display = "none";
+        document.getElementById("pagination").style.display = "none";
+        currentData = [];
+      }
+
+      function exportData() {
+        if (currentData.length === 0) {
+          alert("No data to export. Please load data first.");
+          return;
+        }
+
+        const exportData = {
+          export_timestamp: new Date().toISOString(),
+          total_records: currentData.length,
+          records: currentData,
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(dataBlob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `xpia_attack_data_${
+          new Date().toISOString().split("T")[0]
+        }.json`;
+        link.click();
+
+        URL.revokeObjectURL(url);
+      }
+
+      function previousPage() {
+        if (currentPage > 1) {
+          displayPage(currentPage - 1);
+        }
+      }
+
+      function nextPage() {
+        const totalPages = Math.ceil(currentData.length / recordsPerPage);
+        if (currentPage < totalPages) {
+          displayPage(currentPage + 1);
+        }
+      }
+
+      // Auto-refresh every 30 seconds
+      setInterval(() => {
+        if (currentData.length > 0) {
+          loadData();
+        }
+      }, 30000);
+
+      // Load data on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("🔥 XPIA Database Viewer loaded");
+        console.log("📊 Ready to display attack simulation data");
+      });
+    </script>
+  </body>
+</html>

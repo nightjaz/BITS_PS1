@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XPIA Data Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .data-entry {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      .data-content {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 1rem;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .timestamp {
+        color: #6c757d;
+        font-size: 0.9em;
+      }
+      .refresh-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      }
+      .refresh-btn:hover {
+        background: #0056b3;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🔍 XPIA Data Viewer</h1>
+      <p>View data uploaded by AI agents during XPIA attack simulations</p>
+    </header>
+
+    <main>
+      <section>
+        <button class="refresh-btn" onclick="loadData()">
+          🔄 Refresh Data
+        </button>
+        <div id="loading" style="display: none">Loading...</div>
+        <div id="error" class="error" style="display: none"></div>
+        <div id="data-container">
+          <p>Click "Refresh Data" to load uploaded data from the database.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        🛡️ XPIA Security Research | Educational Purpose Only |
+        <a href="index.html">Back to Main Page</a>
+      </p>
+    </footer>
+
+    <script>
+      async function loadData() {
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const container = document.getElementById("data-container");
+
+        loading.style.display = "block";
+        error.style.display = "none";
+
+        try {
+          const response = await fetch("/api/xpia/data");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          if (result.success && result.records) {
+            displayData(result.records);
+          } else {
+            throw new Error("Invalid response format");
+          }
+        } catch (err) {
+          error.textContent = `Failed to load data: ${err.message}`;
+          error.style.display = "block";
+          container.innerHTML =
+            "<p>Unable to load data. Check console for details.</p>";
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      function displayData(data) {
+        const container = document.getElementById("data-container");
+
+        if (!data || data.length === 0) {
+          container.innerHTML = "<p>No data found in the database.</p>";
+          return;
+        }
+
+        let html = `<h3>📊 Uploaded Data Entries (${data.length} total)</h3>`;
+
+        data.forEach((entry, index) => {
+          const timestamp = new Date(entry.created_at).toLocaleString();
+          html += `
+            <div class="data-entry">
+              <h4>Entry #${
+                index + 1
+              } <span class="timestamp">(${timestamp})</span></h4>
+              <div class="data-content">${entry.text || "No content"}</div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      // Auto-refresh every 30 seconds
+      setInterval(loadData, 30000);
+    </script>
+  </body>
+</html>
