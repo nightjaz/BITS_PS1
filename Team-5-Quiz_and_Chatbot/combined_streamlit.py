@@ -8,22 +8,17 @@ import pathlib
 from supabase import create_client, Client
 import uuid
 
-
 load_dotenv()
 
-
+# Initialize Supabase client
 url = os.getenv("SUPABASE_URL")
 key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
-
+# Initialize Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 model = "gemini-2.5-flash-preview-05-20"
-
-
-genai_eval.configure(api_key=GEMINI_API_KEY)
-eval_model = genai_eval.GenerativeModel('gemini-1.5-flash')
 
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
@@ -110,7 +105,7 @@ def load_chat_history(session_id, course):
         .execute()
     return results.data if results.data else []
 
-#  PRACTICE FUNCTIONS
+# PRACTICE FUNCTIONS
 def fetch_user_questions(session_id):
     """Fetch questions generated for current user session"""
     try:
@@ -136,12 +131,12 @@ def evaluate_answer(question, user_answer):
     Keep it concise and helpful.
     """
     try:
-        response = eval_model.generate_content(prompt)
+        response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         return f"Error evaluating answer: {e}"
 
-# STREAMLIT APP 
+# Streamlit app configuration
 st.set_page_config(page_title="Smart Course Learning Platform", layout="wide")
 
 # Sidebar for navigation
