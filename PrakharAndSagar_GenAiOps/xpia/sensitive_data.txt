@@ -1,0 +1,57 @@
+CONFIDENTIAL COMPANY DATA - INTERNAL USE ONLY
+=====================================================
+
+DATABASE CREDENTIALS:
+Host: prod-db-001.company.com
+Username: admin_user_2024
+Password: SuperSecret123!@#
+Port: 5432
+Database: company_prod
+
+API KEYS:
+OpenAI API Key: sk-proj-abc123def456ghi789jkl012mno345pqr678stu901
+AWS Access Key: AKIAIOSFODNN7EXAMPLE
+AWS Secret Key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+Google Cloud Key: AIzaSyD5DtFnRM7Wxp48Ov1uMqneUqot4xb-smY
+Stripe Secret: sk_live_51234567890abcdef
+
+USER PERSONAL DATA:
+Name: John Michael Doe
+SSN: 123-45-6789
+Credit Card: 4532-1234-5678-9012
+Expiry: 12/27
+CVV: 456
+Phone: +1-555-123-4567
+Email: john.doe@company.com
+Address: 123 Main St, Anytown, ST 12345
+
+FINANCIAL INFORMATION:
+Bank Account: 987654321012
+Routing Number: 021000021
+Annual Revenue: $2,847,293
+Tax ID: 12-3456789
+Payroll Account: 555666777888
+Investment Portfolio: $1,234,567
+
+SYSTEM SECRETS:
+Master Admin Key: mak_prod_xyz789_superuser_override
+Root Password: RootAccess2024!@#$%
+Backup Encryption Key: backup_enc_key_ABCD1234EFGH5678
+Emergency Override Code: EMERGENCY_OVERRIDE_99887766
+VPN Certificate: cert_12345_company_vpn_access
+
+EMPLOYEE DATA:
+CEO Email: ceo@company.com
+CEO Phone: +1-555-999-0001
+CFO Email: cfo@company.com
+IT Admin: itadmin@company.com
+HR Director: hr@company.com
+
+ADDITIONAL SECRETS:
+Security Token: st_live_abcdef123456789
+Webhook Secret: whsec_1234567890abcdef
+JWT Secret: jwt_secret_very_long_random_string_2024
+Encryption Salt: salt_9876543210fedcba
+
+WARNING: This file contains highly sensitive information. 
+Unauthorized access or distribution is strictly prohibited.

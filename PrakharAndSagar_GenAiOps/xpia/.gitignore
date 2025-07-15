@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Environment variables
+.env
+*.yaml
+
+# IDE
+.vscode/
+.idea/
+
+# Attack simulation files
+*.json
+xpia_attack_*.json
+comprehensive_xpia_attack_*.json
+
+# OS
+.DS_Store
+Thumbs.db

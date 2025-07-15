@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XPIA Attack Text Viewer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #00ff00;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(0, 255, 0, 0.1);
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px #00ff00;
+      }
+
+      .subtitle {
+        color: #ff6666;
+        font-size: 1.2rem;
+      }
+
+      .controls {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      button {
+        background: #00ff00;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background: #00cc00;
+        box-shadow: 0 0 10px #00ff00;
+      }
+
+      .loading {
+        text-align: center;
+        font-size: 1.5rem;
+        color: #ffff00;
+        margin: 50px 0;
+      }
+
+      .text-record {
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid #00ff00;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      }
+
+      .record-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+      }
+
+      .record-id {
+        color: #ffff00;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .record-timestamp {
+        color: #888;
+        font-size: 0.9rem;
+      }
+
+      .raw-text {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #ff6666;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-x: auto;
+        color: #ffffff;
+        word-wrap: break-word;
+      }
+
+      .no-data {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        margin: 50px 0;
+      }
+
+      .stats {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff6666;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .stats h3 {
+        color: #ff6666;
+        margin-bottom: 10px;
+      }
+
+      .nav-links {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .nav-links a {
+        color: #00ff00;
+        text-decoration: none;
+        margin: 0 15px;
+        padding: 8px 16px;
+        border: 1px solid #00ff00;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        background: rgba(0, 255, 0, 0.1);
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎯 XPIA Attack Text Viewer</h1>
+        <div class="subtitle">Raw Text Content from Database</div>
+      </header>
+
+      <div class="nav-links">
+        <a href="index.html">🏠 Main Site</a>
+        <a href="viewer.html">📊 JSON Viewer</a>
+        <a href="text_viewer.html">📝 Text Viewer</a>
+      </div>
+
+      <div class="controls">
+        <button onclick="loadRecords()">🔄 Refresh Data</button>
+        <button onclick="clearDisplay()">🗑️ Clear Display</button>
+      </div>
+
+      <div class="stats" id="stats" style="display: none">
+        <h3>Database Statistics</h3>
+        <div id="statsContent"></div>
+      </div>
+
+      <div class="loading" id="loading" style="display: none">
+        Loading attack records...
+      </div>
+
+      <div id="recordsContainer"></div>
+    </div>
+
+    <script>
+      let allRecords = [];
+
+      async function loadRecords() {
+        const loading = document.getElementById("loading");
+        const container = document.getElementById("recordsContainer");
+        const stats = document.getElementById("stats");
+
+        loading.style.display = "block";
+        container.innerHTML = "";
+        stats.style.display = "none";
+
+        try {
+          const response = await fetch("/api/xpia/data");
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          allRecords = data.records || [];
+
+          loading.style.display = "none";
+
+          if (allRecords.length === 0) {
+            container.innerHTML =
+              '<div class="no-data">No attack records found in the database.</div>';
+            return;
+          }
+
+          displayStats();
+          displayRecords();
+        } catch (error) {
+          loading.style.display = "none";
+          console.error("Error loading records:", error);
+          container.innerHTML = `
+                    <div class="no-data">
+                        ❌ Error loading data: ${error.message}<br>
+                        <small>Make sure the backend server is running and accessible.</small>
+                    </div>
+                `;
+        }
+      }
+
+      function displayStats() {
+        const stats = document.getElementById("stats");
+        const statsContent = document.getElementById("statsContent");
+
+        const totalRecords = allRecords.length;
+        const totalTextLength = allRecords.reduce(
+          (sum, record) => sum + (record.text || "").length,
+          0
+        );
+        const avgTextLength =
+          totalRecords > 0 ? Math.round(totalTextLength / totalRecords) : 0;
+
+        statsContent.innerHTML = `
+                <strong>Total Records:</strong> ${totalRecords} | 
+                <strong>Total Text Length:</strong> ${totalTextLength.toLocaleString()} chars | 
+                <strong>Average Length:</strong> ${avgTextLength.toLocaleString()} chars
+            `;
+
+        stats.style.display = "block";
+      }
+
+      function displayRecords() {
+        const container = document.getElementById("recordsContainer");
+
+        const recordsHTML = allRecords
+          .map((record) => {
+            const createdAt = new Date(record.created_at).toLocaleString();
+            const textContent = record.text || "No text content";
+
+            return `
+                    <div class="text-record">
+                        <div class="record-header">
+                            <div class="record-id">Record ID: ${record.id}</div>
+                            <div class="record-timestamp">${createdAt}</div>
+                        </div>
+                        <div class="raw-text">${escapeHtml(textContent)}</div>
+                    </div>
+                `;
+          })
+          .join("");
+
+        container.innerHTML = recordsHTML;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function clearDisplay() {
+        document.getElementById("recordsContainer").innerHTML = "";
+        document.getElementById("stats").style.display = "none";
+        allRecords = [];
+      }
+
+      // Load records on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadRecords();
+      });
+    </script>
+  </body>
+</html>
