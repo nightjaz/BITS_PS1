@@ -1,0 +1,20 @@
+# --- Core Libraries ---
+streamlit>=1.30.0
+PyMuPDF>=1.23.7
+
+# --- LlamaIndex and Gemini ---
+llama-index>=0.10.38
+google-generativeai>=0.3.2
+llama-index-llms-gemini>=0.1.5
+llama-index-embeddings-huggingface>=0.1.5
+llama-index-retrievers-bm25>=0.1.2
+
+# --- NLP + Embeddings ---
+sentence-transformers>=2.6.1
+transformers>=4.41.0
+torch>=2.2.2
+
+# --- Optional (faster downloads/parsing/logs) ---
+tqdm
+numpy
+requests
