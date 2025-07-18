@@ -1,0 +1,9 @@
+streamlit
+langchain-openai
+langchain-community
+langchain-huggingface
+chromadb
+neo4j
+pydantic==2.7.1 # Specify a compatible version for LangChain
+tiktoken
+sentence-transformers # Required for HuggingFaceEmbeddings "all-MiniLM-L6-v2"
