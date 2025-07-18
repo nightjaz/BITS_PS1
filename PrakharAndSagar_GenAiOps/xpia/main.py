@@ -26,6 +26,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, Response
 from pydantic import BaseModel
 import uvicorn
 from dotenv import load_dotenv
+import base64
+from fastapi import Request
 
 from supabase_client import supabase_client
 from supabase_client import get_all_xpia_records
@@ -451,6 +453,28 @@ async def serve_data_viewer():
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Data viewer not found")
 
+@app.get("/api/db-data")
+async def get_db_data():
+    """Return all rows from Supabase for XPIA agent demo."""
+    data = await supabase_client.get_all_rows()
+    return {"data": data}
+
+@app.post("/api/db-update")
+async def update_db(request: Request):
+    """Overwrite all rows in Supabase with base64-decoded data."""
+    body = await request.json()
+    # Accept both 'data' and 'b64_data' for compatibility
+    b64_data = body.get("data") or body.get("b64_data")
+    if not b64_data:
+        raise HTTPException(status_code=400, detail="Missing 'data' or 'b64_data' field")
+    
+    try:
+        decoded = base64.b64decode(b64_data.encode()).decode()
+        await supabase_client.overwrite_all_rows(decoded)
+        return {"status": "updated", "message": "Database overwritten successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database update failed: {str(e)}")
+
 if __name__ == "__main__":
     """
     Main entry point for the XPIA simulation server.
@@ -459,12 +483,12 @@ if __name__ == "__main__":
     The server is optimized for Google App Engine deployment but can run locally.
     
     Environment Variables:
-        HOST: Server host address (default: 0.0.0.0)
+        HOST: Server host address (default: 0.0.0)
         PORT: Server port (default: 8080 for App Engine)
         DEBUG: Enable debug mode (default: False)
     """
     # Get configuration from environment variables
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0")
     port = int(os.getenv("PORT", 8080))  # App Engine uses 8080 by default
     debug = os.getenv("DEBUG", "False").lower() == "true"
     
